@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>roar</title>
@@ -22,6 +22,16 @@
 <div style="position: absolute; top: 10px; right: 10px;">
     <a href="?lang=pt" style="margin-right: 10px; padding: 5px 10px; background-color: #f0f0f0; border: 1px solid #ccc; border-radius: 3px; text-decoration: none; color: #333;">PT</a>
     <a href="?lang=en" style="padding: 5px 10px; background-color: #f0f0f0; border: 1px solid #ccc; border-radius: 3px; text-decoration: none; color: #333;">EN</a>
+
+    <!-- Autenticação GitHub -->
+    <div sec:authorize="!isAuthenticated()" style="margin-top: 10px;">
+        <a href="/oauth2/authorization/github" style="padding: 5px 10px; background-color: #24292e; border-radius: 3px; text-decoration: none; color: #fff;">Login com GitHub</a>
+    </div>
+    <div sec:authorize="isAuthenticated()" style="margin-top: 10px; display: flex; align-items: center;">
+        <img th:if="${avatarUrl}" th:src="${avatarUrl}" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 10px;">
+        <span th:text="${username}" style="margin-right: 10px;"></span>
+        <a href="/logout" style="padding: 5px 10px; background-color: #dc3545; border-radius: 3px; text-decoration: none; color: #fff;">Logout</a>
+    </div>
 </div>
 
 <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
@@ -31,7 +41,7 @@
 
 
 <div class="container">
-    <div>
+    <div sec:authorize="isAuthenticated()">
         <h2 th:text="#{index.post}"></h2>
         <form action="/roar" method="post">
             <textarea name="content" rows="4" th:placeholder="#{index.placeholder}" required
@@ -40,14 +50,18 @@
         </form>
     </div>
 
+    <div sec:authorize="!isAuthenticated()" style="text-align: center; margin: 30px 0;">
+        <p>Faça login com GitHub para poder postar!</p>
+    </div>
+
     <h2 th:text="#{index.timeline}"></h2>
     <div th:each="roar : ${roars}" class="roar-card">
-        <p  th:text="${roar.username +':'}" ></p>
+        <p th:text="${roar.username + ':'}" ></p>
         <p th:text="${roar.content}" ></p>
         <p class="likes"><span th:text="#{index.likes}"></span> <span th:text="${roar.likes}">0</span> |</p>
         <form action="/like" method="post" style="display: inline; text-align: right;" >
             <input type="hidden" name="roarId" th:value="${roar.id}"/>
-            <button type="submit" class="like-button"  th:text="#{index.like}">
+            <button type="submit" class="like-button" th:text="#{index.like}">
                 <i class="fas fa-heart"></i>
             </button>
         </form>
