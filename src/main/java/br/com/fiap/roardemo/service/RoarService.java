@@ -1,29 +1,49 @@
 package br.com.fiap.roardemo.service;
 
 import br.com.fiap.roardemo.model.Roar;
+import br.com.fiap.roardemo.repository.RoarRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
+@Service
 public class RoarService {
 
-    private static List<Roar> roars = new ArrayList<>();
+    private final RoarRepository roarRepository;
 
-    public static List<Roar> getRoars() {
-        return roars;
+    @Autowired
+    public RoarService(RoarRepository roarRepository) {
+        this.roarRepository = roarRepository;
     }
 
-    public static void addRoar(String content, String username) {
-        Roar roar = new Roar(roars.size() + 1L, content, 0, new ArrayList<>(), username);
-        roars.add(roar);
+    public List<Roar> getAllRoars() {
+        return roarRepository.findAllByOrderByCreatedAtDesc();
     }
 
-    public static void likeRoar(Long tweetId) {
-        for (Roar roar : roars) {
-            if (roar.getId().equals(tweetId)) {
-                roar.setLikes(roar.getLikes() + 1);
-            }
-        }
+    public List<Roar> getRoarsByUserId(String userId) {
+        return roarRepository.findByUserIdOrderByCreatedAtDesc(userId);
     }
 
+    @Transactional
+    public Roar addRoar(String content, String username, String userId) {
+        Roar roar = new Roar(content, username, userId);
+        return roarRepository.save(roar);
+    }
+
+    @Transactional
+    public Roar likeRoar(Long roarId) {
+        return roarRepository.findById(roarId)
+                .map(roar -> {
+                    roar.setLikes(roar.getLikes() + 1);
+                    return roarRepository.save(roar);
+                })
+                .orElseThrow(() -> new RuntimeException("Roar não encontrado com ID: " + roarId));
+    }
+
+    public Roar getRoarById(Long roarId) {
+        return roarRepository.findById(roarId)
+                .orElseThrow(() -> new RuntimeException("Roar não encontrado com ID: " + roarId));
+    }
 }
