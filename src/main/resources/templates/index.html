@@ -28,25 +28,23 @@
 
 <div class="container">
     <div>
-        <h2>Post a roar</h2>
+        <h2 th:text="#{index.post}"></h2>
         <form action="/roar" method="post">
-            <textarea name="content" rows="4" placeholder="What's happening?" required
+            <textarea name="content" rows="4" th:placeholder="#{index.placeholder}" required
                       style="width: 100%; box-sizing: border-box;"></textarea>
             <button type="submit">Roar</button>
         </form>
     </div>
 
-    <h2>Timeline</h2>
+    <h2 th:text="#{index.timeline}"></h2>
     <div th:each="roar : ${roars}" class="roar-card">
-        <p  th:text="${roar.username +':'}">Username</p>
-        <p th:text="${roar.content}">This is a roar</p>
-        <p class="likes">
-            Likes: <span th:text="${roar.likes}">0</span> |
-        </p>
-        <form action="/like" method="post" style="display: inline; text-align: right;">
+        <p  th:text="${roar.username +':'}" ></p>
+        <p th:text="${roar.content}" ></p>
+        <p class="likes">    Likes: <span th:text="${roar.likes}">0</span> |</p>
+        <form action="/like" method="post" style="display: inline; text-align: right;" >
             <input type="hidden" name="roarId" th:value="${roar.id}"/>
-            <button type="submit" class="like-button">
-                <i class="fas fa-heart"></i> Like
+            <button type="submit" class="like-button"  th:text="#{index.like}">
+                <i class="fas fa-heart"></i>
             </button>
         </form>
     </div>
